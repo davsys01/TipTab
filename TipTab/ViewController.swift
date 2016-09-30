@@ -75,6 +75,13 @@ class ViewController: UIViewController {
     
     let tolerance = 10 // Minutes
     
+    struct colorTheme {
+        let Dark = UIColor.black
+        let Light = UIColor(red: 0.511442, green: 0.884617, blue: 0.804661, alpha: 1)
+    }
+    
+    let color = colorTheme()
+    
     @IBOutlet weak var partySizeSlider: UISlider!
     @IBOutlet weak var partySizeLabel: UILabel!
     @IBOutlet weak var tipLabel: UILabel!
@@ -137,7 +144,6 @@ class ViewController: UIViewController {
 
         let locale = Locale.current
         let currencySymbol = locale.currencySymbol
-        //let currencyCode = locale.currencyCode
 
         let tipString = tipSegment.titleForSegment(at: tipSegment.selectedSegmentIndex)
         var tipNumeric = Double((tipString?.substring(to: (tipString?.index(before: (tipString?.endIndex)!))!))!)
@@ -163,6 +169,14 @@ class ViewController: UIViewController {
         
         let sliderDefault = (defaults.integer(forKey: "sliderValue") == 0 ? 1: defaults.integer(forKey: "sliderValue"))
         let tipDefault = defaults.integer(forKey: "tipValue")
+        if let themeDefault: Int = defaults.object(forKey: "themeValue") as? Int {
+          self.view.backgroundColor = themeDefault == 0 ? color.Dark : color.Light
+        } else {
+            self.view.backgroundColor = color.Light
+            defaults.setValue(1, forKey: "themeValue")
+            defaults.synchronize()
+        }
+        
         if let lastUsedDate: Date = defaults.object(forKey: "lastUsedValue") as? Date {
             let currentDate = Date()
             let minutesElapsed = currentDate.minutes(from: lastUsedDate)
@@ -173,6 +187,8 @@ class ViewController: UIViewController {
         
         tipSegment.selectedSegmentIndex = tipDefault
         partySizeSlider.value = Float(sliderDefault)
+        
+        //self.view.backgroundColor = themeDefault == 0 ? color.Dark : color.Light
         
         self.sliderValueChanged(partySizeSlider)
     }

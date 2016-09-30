@@ -12,10 +12,19 @@ class SettingsViewController: UIViewController {
     
     var sliderDefault = 1
     var tipDefault = 0
+    var themeDefault = 1
+    
+    struct colorTheme {
+        let Dark = UIColor.black
+        let Light = UIColor(red: 0.511442, green: 0.884617, blue: 0.804661, alpha: 1)
+    }
+    
+    let color = colorTheme()
 
     @IBOutlet weak var partySizeLabel: UILabel!
     @IBOutlet weak var tipSegment: UISegmentedControl!
     @IBOutlet weak var partySizeSlider: UISlider!
+    @IBOutlet weak var themeSegment: UISegmentedControl!
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -55,6 +64,9 @@ class SettingsViewController: UIViewController {
     
     @IBAction func segmentValueChanged(_ sender: AnyObject) {
         tipDefault = tipSegment.selectedSegmentIndex
+        themeDefault = themeSegment.selectedSegmentIndex
+        
+        self.view.backgroundColor = themeDefault == 0 ? color.Dark : color.Light
         
         //saveDefaults()
     }
@@ -64,10 +76,14 @@ class SettingsViewController: UIViewController {
         
         sliderDefault = (defaults.integer(forKey: "sliderValue") == 0 ? 1: defaults.integer(forKey: "sliderValue"))
         tipDefault = defaults.integer(forKey: "tipValue")
+        themeDefault = defaults.integer(forKey: "themeValue")
         
         tipSegment.selectedSegmentIndex = tipDefault
         partySizeSlider.value = Float(sliderDefault)
-        
+        themeSegment.selectedSegmentIndex = themeDefault
+
+        self.view.backgroundColor = themeDefault == 0 ? color.Dark : color.Light
+
         self.sliderValueChanged(partySizeSlider)
     }
     
@@ -76,6 +92,7 @@ class SettingsViewController: UIViewController {
         
         defaults.setValue(sliderDefault, forKey: "sliderValue")
         defaults.setValue(tipDefault, forKey: "tipValue")
+        defaults.setValue(themeDefault, forKey: "themeValue")
         
         defaults.synchronize()
     }
