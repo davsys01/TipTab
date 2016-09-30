@@ -24,6 +24,7 @@ The following **additional** features are implemented:
 - [X] Used an extension for the Double data type so that formatting 2 decimals is easier
 - [X] Used an extension for the Date data type so that date comparison is easier
 - [X] Created an icon for the app and modified the design to match it
+- [X] UI Dark/Light theme implementation
 
 ## Video Walkthrough 
 
