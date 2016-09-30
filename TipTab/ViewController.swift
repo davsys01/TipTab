@@ -153,8 +153,16 @@ class ViewController: UIViewController {
         let tip = bill * tipNumeric!
         let total = bill + tip
         
-        tipLabel.text = String(format: "\(currencySymbol!)%.2f", tip)
-        totalLabel.text = String(format: "\(currencySymbol!)%.2f", total)
+        let tipFormatter = NumberFormatter()
+        tipFormatter.numberStyle = NumberFormatter.Style.decimal
+        tipFormatter.string(from: NSNumber(value: tip))
+
+        let totalFormatter = NumberFormatter()
+        totalFormatter.numberStyle = NumberFormatter.Style.decimal
+        totalFormatter.string(from: NSNumber(value: total))
+
+        tipLabel.text = currencySymbol! + tipFormatter.string(from: NSNumber(value: tip))!
+        totalLabel.text = currencySymbol! + tipFormatter.string(from: NSNumber(value: total))!
         
         let partySize = Int(partySizeSlider.value)
         if partySize > 1 {
