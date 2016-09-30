@@ -16,10 +16,64 @@ extension Double {
     }
 }
 
+extension Date {
+    /// Returns the amount of years from another date
+    func years(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.year], from: date, to: self).year ?? 0
+    }
+    /// Returns the amount of months from another date
+    func months(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.month], from: date, to: self).month ?? 0
+    }
+    /// Returns the amount of weeks from another date
+    func weeks(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.weekOfYear], from: date, to: self).weekOfYear ?? 0
+    }
+    /// Returns the amount of days from another date
+    func days(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.day], from: date, to: self).day ?? 0
+    }
+    /// Returns the amount of hours from another date
+    func hours(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.hour], from: date, to: self).hour ?? 0
+    }
+    /// Returns the amount of minutes from another date
+    func minutes(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.minute], from: date, to: self).minute ?? 0
+    }
+    /// Returns the amount of seconds from another date
+    func seconds(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.second], from: date, to: self).second ?? 0
+    }
+    /// Returns the a custom time interval description from another date
+    func offset(from date: Date) -> String {
+        if years(from: date)   > 0 { return "\(years(from: date))y"   }
+        if months(from: date)  > 0 { return "\(months(from: date))M"  }
+        if weeks(from: date)   > 0 { return "\(weeks(from: date))w"   }
+        if days(from: date)    > 0 { return "\(days(from: date))d"    }
+        if hours(from: date)   > 0 { return "\(hours(from: date))h"   }
+        if minutes(from: date) > 0 { return "\(minutes(from: date))m" }
+        if seconds(from: date) > 0 { return "\(seconds(from: date))s" }
+        return ""
+    }
+    func toShortTimeString() -> String
+    {
+        //Get Short Time String
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        let timeString = formatter.string(from: self)
+        
+        //Return Short Time String
+        return timeString
+    }
+}
+
 class ViewController: UIViewController {
     
     var textValue = 0.0
     var isDirty = false
+    
+    let tolerance = 10 // Minutes
     
     @IBOutlet weak var partySizeSlider: UISlider!
     @IBOutlet weak var partySizeLabel: UILabel!
@@ -46,6 +100,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+
+        NotificationCenter.default.addObserver(self, selector: #selector(self.readDefaults), name: .UIApplicationWillEnterForeground, object: nil)
         
         billText.becomeFirstResponder()
     }
@@ -67,7 +123,7 @@ class ViewController: UIViewController {
             isDirty = true
         }
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -78,7 +134,11 @@ class ViewController: UIViewController {
     }
 
     @IBAction func calculateTip(_ sender: AnyObject) {
-        
+
+        let locale = Locale.current
+        let currencySymbol = locale.currencySymbol
+        //let currencyCode = locale.currencyCode
+
         let tipString = tipSegment.titleForSegment(at: tipSegment.selectedSegmentIndex)
         var tipNumeric = Double((tipString?.substring(to: (tipString?.index(before: (tipString?.endIndex)!))!))!)
         tipNumeric = Double(tipNumeric!/100).roundTo(places: 2)
@@ -87,14 +147,14 @@ class ViewController: UIViewController {
         let tip = bill * tipNumeric!
         let total = bill + tip
         
-        tipLabel.text = String(format: "$%.2f", tip)
-        totalLabel.text = String(format: "$%.2f", total)
+        tipLabel.text = String(format: "\(currencySymbol!)%.2f", tip)
+        totalLabel.text = String(format: "\(currencySymbol!)%.2f", total)
         
         let partySize = Int(partySizeSlider.value)
         if partySize > 1 {
-            personTotalLabel.text = String(format: "$%.2f", total / Double(partySize))
+            personTotalLabel.text = String(format: "\(currencySymbol!)%.2f", total / Double(partySize))
         } else {
-            personTotalLabel.text = String(format: "$%.2f", total)
+            personTotalLabel.text = String(format: "\(currencySymbol!)%.2f", total)
         }
     }
     
@@ -103,12 +163,18 @@ class ViewController: UIViewController {
         
         let sliderDefault = (defaults.integer(forKey: "sliderValue") == 0 ? 1: defaults.integer(forKey: "sliderValue"))
         let tipDefault = defaults.integer(forKey: "tipValue")
+        if let lastUsedDate: Date = defaults.object(forKey: "lastUsedValue") as? Date {
+            let currentDate = Date()
+            let minutesElapsed = currentDate.minutes(from: lastUsedDate)
+            if minutesElapsed > tolerance {
+                billText.text = ""
+            }
+        }
         
         tipSegment.selectedSegmentIndex = tipDefault
         partySizeSlider.value = Float(sliderDefault)
         
         self.sliderValueChanged(partySizeSlider)
     }
-    
 }
 
