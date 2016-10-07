@@ -187,9 +187,19 @@ class ViewController: UIViewController {
         
         if let lastUsedDate: Date = defaults.object(forKey: "lastUsedValue") as? Date {
             let currentDate = Date()
+            let yearsElapsed = currentDate.years(from: lastUsedDate)
+            let monthsElapsed = currentDate.months(from: lastUsedDate)
+            let weeksElapsed = currentDate.weeks(from: lastUsedDate)
+            let daysElapsed = currentDate.days(from: lastUsedDate)
             let minutesElapsed = currentDate.minutes(from: lastUsedDate)
-            if minutesElapsed > tolerance {
+            
+            if yearsElapsed > 0 || monthsElapsed > 0 || weeksElapsed > 0 || daysElapsed > 0 {
                 billText.text = ""
+            } else
+            {
+                if minutesElapsed > tolerance {
+                    billText.text = ""
+                }
             }
         }
         
